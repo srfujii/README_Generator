@@ -3,7 +3,7 @@ const inquirer = require('inquirer');
 const fs = require('fs');
 const generateMarkdown = require('./utils/generateMarkdown');
 
-// Create an array of questions for user input...
+// Array of questions for user input
 const questions = [
     {
         type: 'input',
@@ -55,41 +55,35 @@ const questions = [
     },
 ];
 
-inquirer
-  .prompt(questions).then((data) => {
-    console.log("We have data: " + data);
-    console.log(JSON.stringify(data));
+// Function writeToFile uses built-in fs library to write the generated markdown
+// to a README.md file on the OS.
+const writeToFile = (fileName, answers) => {
 
-    const markdownContent = generateMarkdown(data);
-    writeToFile('./README.md', markdownContent);
+    console.log("Generating README file.....");
 
-    // const filename = `${data.name.toLowerCase().split(' ').join('')}.json`;
-    // fs.writeFile(filename, JSON.stringify(data, null, '\t'), (err) =>
-    //   err ? console.log(err) : console.log('Success!')
-    // );
-  })
-  .catch(error => {
-    if(error.isTtyError) {
-      // Prompt couldn't be rendered in the current environment
-    } else {
-      // Something else went wrong
-    }
-  });
-
-
-//     console.log(JSON.stringify(answers, null, '  '));
-
-function writeToFile(fileName, data) {
-
-    console.log("Generating README file....." + data);
-
-    fs.writeFile(fileName, data, (err) =>
+    fs.writeFile(fileName, answers, (err) =>
         err ? console.error(err) : console.log('Success!'));
 
 }
 
-// // TODO: Create a function to initialize app
-// function init() {}
+// Function askQuestions uses the inquirer library to prompt the user for information
+// and stores the results. Calls generateMarkdown function to generate the README.md
+// file, then calls writeToFile function to write the generated markdown to the OS.
+const askQuestions = (questions) => {
+    inquirer
+        .prompt(questions).then((answers) => {
+            writeToFile('./README.md', generateMarkdown(answers));
+        })
+        .catch(error => {
+            if(error.isTtyError) {
+            // Prompt couldn't be rendered in the current environment
+            console.log("You need to use a different terminal to access this program.");
+            } else {
+            // Something else went wrong
+            console.log("An error occurred. Please send an email to test@test.com.");
+            }
+        });
+}
 
-// // Function call to initialize app
-// init();
+// Function call to ask our questions
+askQuestions(questions);
